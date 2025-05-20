@@ -25,14 +25,28 @@ function loadMessages() {
     });
 }
 
+function clearMessages() {
+  fetch("/clear", {
+    method: "POST"
+  }).then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        loadMessages();
+      } else {
+        alert("Ошибка при очистке сообщений");
+      }
+    });
+}
+
+
 let userAgent;
 let session;
 
 function initSIP() {
   userAgent = new SIP.UA({
-    uri: 'sip:username@sip.example.com',  // Твой SIP URI
+    uri: 'sip:username@sip.example.com', 
     transportOptions: {
-      wsServers: ['wss://sip-ws.example.com']  // WebSocket сервера SIP
+      wsServers: ['wss://sip-ws.example.com'] 
     },
     authorizationUser: 'username',
     password: 'password',
