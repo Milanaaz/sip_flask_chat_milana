@@ -18,5 +18,9 @@ def send_message():
 def get_messages():
     return jsonify(messages)
 
+import os
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # порт из переменной окружения или 5000 по умолчанию
+    app.run(host="0.0.0.0", port=port, debug=True)
+

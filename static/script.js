@@ -25,4 +25,70 @@ function loadMessages() {
     });
 }
 
+let userAgent;
+let session;
+
+function initSIP() {
+  userAgent = new SIP.UA({
+    uri: 'sip:username@sip.example.com',  // Твой SIP URI
+    transportOptions: {
+      wsServers: ['wss://sip-ws.example.com']  // WebSocket сервера SIP
+    },
+    authorizationUser: 'username',
+    password: 'password',
+  });
+
+  userAgent.on('invite', (incomingSession) => {
+    if (session) {
+      incomingSession.reject();
+    } else {
+      session = incomingSession;
+      session.accept({
+        media: {
+          constraints: { audio: true, video: false },
+          render: {
+            remote: document.getElementById('remoteAudio')
+          }
+        }
+      });
+      session.on('terminated', () => {
+        session = null;
+      });
+    }
+  });
+}
+
+function makeCall() {
+  if (session) {
+    alert('Уже есть активный звонок');
+    return;
+  }
+  const callee = document.getElementById('callee').value;
+  session = userAgent.invite(callee, {
+    media: {
+      constraints: { audio: true, video: false },
+      render: {
+        remote: document.getElementById('remoteAudio')
+      }
+    }
+  });
+  session.on('terminated', () => {
+    session = null;
+  });
+}
+
+function hangUp() {
+  if (session) {
+    session.bye();
+    session = null;
+  }
+}
+
+window.onload = () => {
+  initSIP();
+  loadMessages();
+  setInterval(loadMessages, 1000);
+}
+
+
 setInterval(loadMessages, 1000);
